@@ -6,6 +6,7 @@ import {
 import {
   ArrowLeft,
   Bot,
+  ChevronDown,
   FileText,
   Send,
   Sparkles,
@@ -33,16 +34,16 @@ function Chat() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [conversationId, setConversationId] =
     useState<string | null>(null);
 
+  // Online is the preferred mode for the deployed application.
   const [llmMode, setLlmMode] = useState<
     "online" | "offline"
-  >("offline");
+  >("online");
 
   const [retrievalLimit, setRetrievalLimit] =
     useState(5);
@@ -137,33 +138,57 @@ function Chat() {
     }
 
     return (
-      <div className="mt-4 border-t border-slate-200 pt-4">
+      <div className="mt-5 border-t border-slate-200 pt-4">
         <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <FileText size={14} />
           Sources
         </div>
 
         <div className="space-y-2">
-          {sources.map((source) => (
-            <div
+          {sources.map((source, index) => (
+            <details
               key={source.chunk_id}
-              className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+              className="group rounded-xl border border-slate-200 bg-slate-50 transition hover:border-indigo-200"
             >
-              <p className="line-clamp-3 text-xs leading-5 text-slate-600">
-                {source.text}
-              </p>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-xs font-semibold text-indigo-700">
+                    {index + 1}
+                  </div>
 
-              {source.distance !== null && (
-                <p className="mt-2 text-[11px] text-slate-400">
-                  Retrieval distance:{" "}
-                  {source.distance.toFixed(4)}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-700">
+                      Source {index + 1}
+                    </p>
+
+                    <p className="truncate text-xs text-slate-400">
+                      Relevant document excerpt
+                    </p>
+                  </div>
+                </div>
+
+                <ChevronDown
+                  size={16}
+                  className="shrink-0 text-slate-400 transition-transform group-open:rotate-180"
+                />
+              </summary>
+
+              <div className="border-t border-slate-200 px-4 py-3">
+                <p className="text-xs leading-5 text-slate-600">
+                  {source.text}
                 </p>
-              )}
-            </div>
+              </div>
+            </details>
           ))}
         </div>
       </div>
     );
+  }
+
+  function formatLatency(
+    latencyMs: number
+  ): string {
+    return `${(latencyMs / 1000).toFixed(1)}s`;
   }
 
   return (
@@ -345,7 +370,9 @@ function Chat() {
                         undefined && (
                         <p className="mt-3 text-[11px] text-slate-400">
                           Response time:{" "}
-                          {message.latency_ms} ms
+                          {formatLatency(
+                            message.latency_ms
+                          )}
                         </p>
                       )}
                   </div>
@@ -361,7 +388,9 @@ function Chat() {
                   <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
                     <div className="flex items-center gap-2">
                       <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-500" />
+
                       <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-500 [animation-delay:150ms]" />
+
                       <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-500 [animation-delay:300ms]" />
                     </div>
                   </div>
