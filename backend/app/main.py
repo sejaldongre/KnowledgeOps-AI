@@ -17,10 +17,12 @@ from app.core.config import get_settings
 from app.core.exceptions import AppException
 from app.core.logging import configure_logging
 
-configure_logging()
 
+configure_logging()
 logger = logging.getLogger(__name__)
+
 settings = get_settings()
+
 
 app = FastAPI(
     title=settings.app_name,
@@ -28,21 +30,25 @@ app = FastAPI(
     version="0.1.0",
 )
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://knowledge-ops-ai-three.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 app.add_exception_handler(
     AppException,
     app_exception_handler,
 )
+
 
 app.include_router(health_router)
 app.include_router(database_router)
@@ -57,7 +63,6 @@ app.include_router(conversation_router)
 
 @app.get("/")
 async def root() -> dict[str, str]:
-    """Return basic API information."""
     logger.info("Root endpoint requested")
 
     return {
