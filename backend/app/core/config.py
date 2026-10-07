@@ -22,10 +22,14 @@ class Settings(BaseSettings):
 
     # Online LLM - Groq
     groq_api_key: str | None = None
-    groq_model: str = "llama-3.3-70b-versatile"
 
-    # Optional Groq API URL
-    groq_api_url: str = "https://api.groq.com/openai/v1/chat/completions"
+    # Current Groq production model
+    groq_model: str = "openai/gpt-oss-20b"
+
+    # Groq OpenAI-compatible API endpoint
+    groq_api_url: str = (
+        "https://api.groq.com/openai/v1/chat/completions"
+    )
 
     # Offline LLM - Ollama
     ollama_base_url: str = "http://localhost:11434"
