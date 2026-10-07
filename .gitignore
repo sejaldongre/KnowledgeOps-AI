@@ -1,54 +1,148 @@
-# Environment
+# ==========================================
+# KnowledgeOps AI - Git Ignore
+# ==========================================
+
+# ------------------------------------------
+# Environment & Secrets
+# ------------------------------------------
 .env
 .env.*
 !.env.example
 
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ------------------------------------------
 # Python
+# ------------------------------------------
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
+
 .venv/
 venv/
+env/
+ENV/
+
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
+.pyre/
 
-# Node
-node_modules/
-.next/
-out/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+pytestdebug.log
 
-# IDE
-.vscode/
-.idea/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
+# ------------------------------------------
+# FastAPI / Uvicorn / Application Logs
+# ------------------------------------------
 *.log
 logs/
 
-# Data
-data/documents/*
-data/processed/*
+# ------------------------------------------
+# Local Runtime Storage
+# ------------------------------------------
+backend/storage/
+storage/
 
-# ChromaDB
+# Local uploaded/generated documents
+data/documents/
+data/processed/
+
+# ------------------------------------------
+# ChromaDB / Local Vector Database
+# ------------------------------------------
 chroma_data/
+backend/chroma_data/
 
-# Test / coverage
-.coverage
-htmlcov/
-coverage.xml
+# ------------------------------------------
+# Local Databases
+# ------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
 
-# Build
+# ------------------------------------------
+# Node / React / Vite
+# ------------------------------------------
+node_modules/
+frontend/node_modules/
+
+.npm/
+.npmrc
+
 dist/
+frontend/dist/
+
 build/
-*.egg-info/
+frontend/build/
 
-# Secrets
-*.pem
-*.key
+.vite/
+frontend/.vite/
 
+# ------------------------------------------
+# Frontend Environment Files
+# ------------------------------------------
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# ------------------------------------------
+# Next.js / Other Frontend Build Files
+# ------------------------------------------
+.next/
+out/
+
+# ------------------------------------------
+# IDE / Editor
+# ------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ------------------------------------------
+# OS Files
+# ------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------------------------------------------
 # Docker
+# ------------------------------------------
 docker-compose.override.yml
+
+# Docker local volumes / generated data
+docker/volumes/
+docker/data/
+
+# ------------------------------------------
+# Temporary Files
+# ------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ------------------------------------------
+# Generated Reports / Exports
+# ------------------------------------------
+*.zip
+*.tar
+*.tar.gz
+
+# ------------------------------------------
+# Documentation / Tool Generated Files
+# ------------------------------------------
+.DS_Store
