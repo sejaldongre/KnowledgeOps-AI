@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +17,10 @@ from app.api.search import router as search_router
 from app.core.config import get_settings
 from app.core.exceptions import AppException
 from app.core.logging import configure_logging
+from app.infrastructure.database import SessionLocal
+from app.services.vector_index_rebuild import (
+    VectorIndexRebuildService,
+)
 
 
 configure_logging()
@@ -24,10 +29,41 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Run application startup and shutdown tasks."""
+
+    logger.info("Starting KnowledgeOps AI backend")
+
+    db = SessionLocal()
+
+    try:
+        rebuild_service = VectorIndexRebuildService(db)
+        rebuilt_count = rebuild_service.rebuild()
+
+        logger.info(
+            "Vector index rebuild completed: %s chunks indexed",
+            rebuilt_count,
+        )
+
+    except Exception:
+        logger.exception(
+            "Vector index rebuild failed during startup"
+        )
+
+    finally:
+        db.close()
+
+    yield
+
+    logger.info("Shutting down KnowledgeOps AI backend")
+
+
 app = FastAPI(
     title=settings.app_name,
     description="Enterprise AI Knowledge Management and RAG Platform",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 

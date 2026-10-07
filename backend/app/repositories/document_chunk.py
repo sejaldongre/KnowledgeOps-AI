@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
 from app.repositories.base import BaseRepository
 
@@ -27,6 +28,29 @@ class DocumentChunkRepository(BaseRepository[DocumentChunk]):
             )
             .order_by(
                 DocumentChunk.chunk_index.asc()
+            )
+        )
+
+        return list(
+            self.db.scalars(statement).all()
+        )
+
+    def get_current_chunks(self) -> list[DocumentChunk]:
+        """Return chunks belonging to the current version of indexed documents."""
+
+        statement = (
+            select(DocumentChunk)
+            .join(
+                Document,
+                Document.current_version_id
+                == DocumentChunk.document_version_id,
+            )
+            .where(
+                Document.current_version_id.is_not(None),
+            )
+            .order_by(
+                DocumentChunk.document_version_id,
+                DocumentChunk.chunk_index.asc(),
             )
         )
 

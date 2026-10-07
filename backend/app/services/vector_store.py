@@ -14,12 +14,17 @@ class ChromaVectorStore:
         collection_name: str = "document_chunks",
         embedding_function: EmbeddingFunction | None = None,
     ) -> None:
+        self.path = path
+        self.collection_name = collection_name
+
         self.client = chromadb.PersistentClient(
             path=path
         )
 
         if embedding_function is None:
             embedding_function = DefaultEmbeddingFunction()
+
+        self.embedding_function = embedding_function
 
         self.collection = (
             self.client.get_or_create_collection(
@@ -39,7 +44,7 @@ class ChromaVectorStore:
     ) -> None:
         """Store a document chunk and generate its embedding."""
 
-        self.collection.add(
+        self.collection.upsert(
             ids=[chunk_id],
             documents=[text],
             metadatas=[
@@ -72,4 +77,18 @@ class ChromaVectorStore:
 
         self.collection.delete(
             ids=[chunk_id]
+        )
+
+    def clear(self) -> None:
+        """Remove all vectors from the collection."""
+
+        self.client.delete_collection(
+            name=self.collection_name
+        )
+
+        self.collection = (
+            self.client.get_or_create_collection(
+                name=self.collection_name,
+                embedding_function=self.embedding_function,
+            )
         )
