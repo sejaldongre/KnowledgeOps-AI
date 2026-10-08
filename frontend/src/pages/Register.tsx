@@ -1,24 +1,19 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import type { FormEvent } from "react";
 
-import { login } from "../api/auth";
-import { useAuth } from "../context/AuthContext";
+import { register } from "../api/auth";
 
-function Login() {
+function Register() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { refreshUser } = useAuth();
 
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const successMessage = (
-    location.state as { message?: string } | null
-  )?.message;
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -26,30 +21,57 @@ function Login() {
     event.preventDefault();
 
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const data = await login({
+      await register({
+        full_name: fullName,
         email,
         password,
       });
 
-      // Save JWT access token
-      localStorage.setItem(
-        "access_token",
-        data.access_token,
-      );
-
-      console.log("Login successful");
-
-      // Load the authenticated user immediately
-      await refreshUser();
-
-      // Navigate to the protected dashboard
-      navigate("/", { replace: true });
+      navigate("/login", {
+        replace: true,
+        state: {
+          message: "Account created successfully. Please sign in.",
+        },
+      });
     } catch (err) {
-      console.error("Login failed:", err);
-      setError("Invalid email or password.");
+      console.error("Registration failed:", err);
+
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err
+      ) {
+        const response = (
+          err as {
+            response?: {
+              data?: {
+                detail?: string;
+              };
+            };
+          }
+        ).response;
+
+        setError(
+          response?.data?.detail ||
+            "Unable to create account. Please try again.",
+        );
+      } else {
+        setError("Unable to create account. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -74,30 +96,46 @@ function Login() {
           </p>
         </div>
 
-        {/* Login Card */}
+        {/* Registration Card */}
         <div className="rounded-2xl border border-white/10 bg-white p-8 shadow-2xl">
 
           <div className="mb-7">
             <h2 className="text-xl font-bold text-slate-900">
-              Welcome back
+              Create your account
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Sign in to access your knowledge workspace.
+              Create an account to access your knowledge workspace.
             </p>
           </div>
-
-          {/* Success Message */}
-          {successMessage && (
-            <div className="mb-5 rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-sm text-green-600">
-              {successMessage}
-            </div>
-          )}
 
           <form
             onSubmit={handleSubmit}
             className="space-y-5"
           >
+
+            {/* Full Name */}
+            <div>
+              <label
+                htmlFor="fullName"
+                className="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Full Name
+              </label>
+
+              <input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(event) =>
+                  setFullName(event.target.value)
+                }
+                placeholder="Your full name"
+                autoComplete="name"
+                required
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+              />
+            </div>
 
             {/* Email */}
             <div>
@@ -138,8 +176,31 @@ function Login() {
                 onChange={(event) =>
                   setPassword(event.target.value)
                 }
-                placeholder="Enter your password"
-                autoComplete="current-password"
+                placeholder="At least 8 characters"
+                autoComplete="new-password"
+                required
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Confirm Password
+              </label>
+
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(event) =>
+                  setConfirmPassword(event.target.value)
+                }
+                placeholder="Re-enter your password"
+                autoComplete="new-password"
                 required
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
               />
@@ -159,28 +220,22 @@ function Login() {
               className="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3 font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:from-indigo-500 hover:to-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading
-                ? "Signing in..."
-                : "Sign in"}
+                ? "Creating account..."
+                : "Create account"}
             </button>
           </form>
 
-          {/* Footer */}
+          {/* Login Link */}
           <div className="mt-7 border-t border-slate-100 pt-5 text-center">
-
             <p className="text-sm text-slate-500">
-              Don't have an account?{" "}
+              Already have an account?{" "}
               <Link
-                to="/register"
+                to="/login"
                 className="font-semibold text-indigo-600 hover:text-indigo-500"
               >
-                Create an account
+                Sign in
               </Link>
             </p>
-
-            <p className="mt-3 text-xs text-slate-400">
-              Secure enterprise knowledge workspace
-            </p>
-
           </div>
         </div>
       </div>
@@ -188,4 +243,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;
