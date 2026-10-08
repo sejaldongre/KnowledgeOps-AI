@@ -18,6 +18,24 @@ https://github.com/sejaldongre/KnowledgeOps-AI
 
 ---
 
+### How to Use the Live Demo
+
+The application is publicly deployed and does not require shared demo credentials.
+
+**Demo flow:**
+
+1. Open the live application.
+2. Click **Create an account** and register with your email and password.
+3. Sign in to access your KnowledgeOps AI workspace.
+4. Go to **Documents** and upload a PDF, DOCX, or TXT document.
+5. Open **Chat** and ask questions about the uploaded document.
+6. Select the preferred LLM mode:
+   - **Online** — Groq-powered responses for faster production inference.
+   - **Offline** — Ollama-powered local inference for development/testing.
+7. Review the retrieved document sources supporting the generated answer.
+
+The platform uses retrieval-augmented generation (RAG) to retrieve relevant document context before generating responses.
+
 ## 📌 What It Does
 
 KnowledgeOps AI turns company documents into a searchable knowledge base.
